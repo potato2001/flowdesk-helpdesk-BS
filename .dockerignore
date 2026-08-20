@@ -1,0 +1,11 @@
+node_modules
+.next
+dist
+.vinext
+.wrangler
+.git
+.agents
+.env*
+data
+*.tsbuildinfo
+npm-debug.log*
