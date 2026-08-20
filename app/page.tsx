@@ -1,12 +1,44 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { AdminUsers } from "@/components/AdminUsers";
+import { toast } from "sonner";
+import { TicketTrendChart, type TrendPoint } from "@/components/TicketTrendChart";
+import { AppShell } from "@/components/AppShell";
+import { AdminAuditLog } from "@/components/admin/AdminAuditLog";
+import { AdminSlaPolicies } from "@/components/admin/AdminSlaPolicies";
+import { AdminTickets } from "@/components/admin/AdminTickets";
+import { AdminUsers } from "@/components/admin/AdminUsers";
 import { PasswordModal } from "@/components/PasswordModal";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 type Status = "new" | "progress" | "waiting" | "resolved";
 type Priority = "high" | "medium" | "low";
-type View = "dashboard" | "kanban" | "tickets" | "portal" | "users";
+type View =
+  | "dashboard"
+  | "kanban"
+  | "tickets"
+  | "portal"
+  | "admin-tickets"
+  | "sla"
+  | "audit"
+  | "users";
 type Role = "requester" | "agent" | "manager" | "admin";
 type Ticket = {
   databaseId?: string;
@@ -23,6 +55,7 @@ type Ticket = {
   initials: string;
   responseSla: number;
   resolutionSla: number;
+  createdAt?: string;
 };
 type Comment = {
   id: number | string;
@@ -263,7 +296,10 @@ const viewLabels: Record<View, string> = {
   kanban: "Bảng công việc",
   tickets: "Tất cả ticket",
   portal: "Cổng nhân viên",
+  "admin-tickets": "Toàn bộ ticket",
+  sla: "Chính sách SLA",
   users: "Quản lý tài khoản",
+  audit: "Nhật ký hoạt động",
 };
 
 function Sla({
@@ -320,7 +356,6 @@ export default function Home() {
   const [dragId, setDragId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<Status | "all">("all");
-  const [toast, setToast] = useState("");
   const [comments, setComments] = useState<Record<string, Comment[]>>({
     "HD-1038": [
       {
@@ -426,10 +461,11 @@ export default function Home() {
   const selected = tickets.find((ticket) => ticket.id === selectedId) ?? null;
   const canUpdate = role !== "requester";
   const canAssign = role === "manager" || role === "admin";
+  // Agents and above see the system-wide queue; requesters never do.
+  const isStaff = role !== "requester";
 
   function notify(message: string) {
-    setToast(message);
-    window.setTimeout(() => setToast(""), 2400);
+    toast.success(message);
   }
   function navigate(next: View) {
     setView(next);
@@ -451,7 +487,10 @@ export default function Home() {
       ? `${(bytes / 1024 / 1024).toFixed(1)} MB`
       : `${Math.max(1, Math.round(bytes / 1024))} KB`;
   }
-  async function loadTicketDetails(id: string, scroll = false) {
+  async function loadTicketDetails(
+    id: string,
+    { select = false, scroll = false }: { select?: boolean; scroll?: boolean } = {},
+  ) {
     const response = await fetch(`/api/tickets/${id}`);
     if (response.status === 401) {
       window.location.href = "/login";
@@ -497,12 +536,14 @@ export default function Home() {
         time: displayTime(item.time),
       })),
     }));
-    setSelectedId(id);
-    setMobileNav(false);
+    if (select) {
+      setSelectedId(id);
+      setMobileNav(false);
+    }
     if (scroll) window.scrollTo({ top: 0, behavior: "smooth" });
   }
   function openTicket(id: string) {
-    void loadTicketDetails(id, true);
+    void loadTicketDetails(id, { select: true, scroll: true });
   }
   function logActivity(id: string, text: string) {
     setActivities((old) => ({
@@ -679,123 +720,106 @@ export default function Home() {
       </main>
     );
 
+  const navGroups = [
+    {
+      label: "Workspace",
+      items: (
+        [
+          ["dashboard", "▦", "Tổng quan"],
+          ["kanban", "▥", "Bảng công việc"],
+          ["tickets", "≡", "Tất cả ticket"],
+          ["portal", "⌂", "Cổng nhân viên"],
+        ] as [View, string, string][]
+      ).map(([key, icon, label]) => ({
+        key,
+        icon,
+        label,
+        badge: key === "kanban" ? openCount : undefined,
+        active: !selected && view === key,
+        onSelect: () => navigate(key),
+      })),
+    },
+    {
+      label: "Vận hành",
+      items: [
+        {
+          key: "admin-tickets",
+          icon: "▤",
+          label: "Toàn bộ ticket",
+          disabled: !isStaff,
+          active: !selected && view === "admin-tickets",
+          onSelect: () => navigate("admin-tickets"),
+        },
+        {
+          key: "reports",
+          icon: "▱",
+          label: "Báo cáo",
+          disabled: true,
+        },
+      ],
+    },
+    {
+      label: "Quản trị",
+      items: [
+        {
+          key: "sla",
+          icon: "◷",
+          label: "Chính sách SLA",
+          disabled: role !== "admin",
+          active: !selected && view === "sla",
+          onSelect: () => navigate("sla"),
+        },
+        {
+          key: "users",
+          icon: "⚙",
+          label: "Tài khoản & phân quyền",
+          disabled: role !== "admin",
+          active: !selected && view === "users",
+          onSelect: () => navigate("users"),
+        },
+        {
+          key: "audit",
+          icon: "◫",
+          label: "Nhật ký hoạt động",
+          disabled: role !== "admin",
+          active: !selected && view === "audit",
+          onSelect: () => navigate("audit"),
+        },
+      ],
+    },
+  ];
+
   return (
-    <main className="app-shell">
-      {mobileNav && (
-        <button
-          className="nav-backdrop"
-          aria-label="Đóng menu"
-          onClick={() => setMobileNav(false)}
-        />
-      )}
-      <aside className={`sidebar ${mobileNav ? "open" : ""}`}>
-        <div className="brand">
-          <span>F</span> Flowdesk
-        </div>
-        <div className="workspace">
-          <b>N</b>
-          <div>
-            NovaTech Việt Nam<small>Internal IT Workspace</small>
-          </div>
-        </div>
-        <p className="nav-label">Workspace</p>
-        <nav>
-          {(
-            [
-              ["dashboard", "▦", "Tổng quan"],
-              ["kanban", "▥", "Bảng công việc"],
-              ["tickets", "≡", "Tất cả ticket"],
-              ["portal", "⌂", "Cổng nhân viên"],
-            ] as [View, string, string][]
-          ).map(([key, icon, label]) => (
-            <button
-              key={key}
-              className={!selected && view === key ? "active" : ""}
-              onClick={() => navigate(key)}
-            >
-              <i>{icon}</i>
-              <span>{label}</span>
-              {key === "kanban" && <b>{openCount}</b>}
-            </button>
-          ))}
-        </nav>
-        <p className="nav-label">Quản lý</p>
-        <nav>
-          <button disabled={role === "requester"}>
-            <i>◷</i>
-            <span>SLA & tự động hóa</span>
-          </button>
-          <button disabled={role === "requester"}>
-            <i>▱</i>
-            <span>Báo cáo</span>
-          </button>
-          <button
-            disabled={role !== "admin"}
-            className={!selected && view === "users" ? "active" : ""}
-            onClick={() => navigate("users")}
-          >
-            <i>⚙</i>
-            <span>Tài khoản & phân quyền</span>
-          </button>
-        </nav>
-        <div className="profile">
-          <Avatar initials={role === "requester" ? "TH" : "HA"} />
-          <div>
-            {currentName}
-            <small>{roleLabels[role]}</small>
-          </div>
-        </div>
-      </aside>
-      <section className="main-area">
-        <header className="topbar">
-          <button
-            className="mobile-menu"
-            onClick={() => setMobileNav(true)}
-            aria-label="Mở menu"
-          >
-            ☰
-          </button>
-          <span>
-            Helpdesk / <b>{selected ? selected.id : viewLabels[view]}</b>
-          </span>
-          <div />
-          <label className="global-search">
-            ⌕{" "}
-            <input
-              placeholder="Tìm ticket, nhân viên..."
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  setQuery(event.currentTarget.value);
-                  navigate("tickets");
-                }
-              }}
-            />
-          </label>
-          <div className="role-switch">
-            <span>Vai trò</span>
-            <b>{roleLabels[role]}</b>
-          </div>
-          <button className="bell" aria-label="Thông báo">
-            ♢<i />
-          </button>
-          <button
-            className="secondary password-button"
-            onClick={() => setPasswordModal(true)}
-          >
-            Đổi mật khẩu
-          </button>
-          <button
-            className="secondary logout-button"
-            onClick={() => void logout()}
-          >
-            Đăng xuất
-          </button>
-          <button className="primary" onClick={() => setModal(true)}>
-            ＋ Tạo ticket
-          </button>
-        </header>
-        <div className="page">
-          {selected ? (
+    <AppShell
+      groups={navGroups}
+      workspaceName="NovaTech Việt Nam"
+      workspaceHint="Internal IT Workspace"
+      breadcrumb={
+        <>
+          Helpdesk /{" "}
+          <b className="text-foreground">
+            {selected ? selected.id : viewLabels[view]}
+          </b>
+        </>
+      }
+      userName={currentName}
+      userRole={roleLabels[role]}
+      userInitials={role === "requester" ? "TH" : "HA"}
+      mobileNavOpen={mobileNav}
+      onMobileNavChange={setMobileNav}
+      onSearch={(term) => {
+        setQuery(term);
+        navigate("tickets");
+      }}
+      onChangePassword={() => setPasswordModal(true)}
+      onLogout={() => void logout()}
+      actions={
+        <Button type="button" size="sm" onClick={() => setModal(true)}>
+          ＋ Tạo ticket
+        </Button>
+      }
+    >
+      {selected ? (
             <TicketDetail
               ticket={selected}
               comments={comments[selected.id] ?? []}
@@ -852,13 +876,18 @@ export default function Home() {
                   onOpen={() => openTicket("HD-1031")}
                 />
               )}
+              {view === "admin-tickets" && isStaff && (
+                <AdminTickets onOpen={openTicket} />
+              )}
+              {view === "sla" && role === "admin" && (
+                <AdminSlaPolicies notify={notify} />
+              )}
               {view === "users" && role === "admin" && (
                 <AdminUsers notify={notify} />
               )}
+              {view === "audit" && role === "admin" && <AdminAuditLog />}
             </>
           )}
-        </div>
-      </section>
       {modal && (
         <TicketModal
           role={role}
@@ -878,8 +907,7 @@ export default function Home() {
           }}
         />
       )}
-      {toast && <div className="toast">✓ {toast}</div>}
-    </main>
+    </AppShell>
   );
 }
 
@@ -921,6 +949,22 @@ function Dashboard({
   onOpen: (id: string) => void;
   onViewTickets: () => void;
 }) {
+  // Derived from the real ticket list: bucket by weekday of creation, so the
+  // chart moves with the data instead of showing fixed decorative bars.
+  const trend: TrendPoint[] = useMemo(() => {
+    const labels = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+    const buckets = labels.map((day) => ({ day, created: 0, resolved: 0 }));
+    for (const ticket of tickets) {
+      if (!ticket.createdAt) continue;
+      const bucket = buckets[new Date(ticket.createdAt).getDay()];
+      if (!bucket) continue;
+      bucket.created += 1;
+      if (ticket.status === "resolved") bucket.resolved += 1;
+    }
+    // Monday-first reads better than Sunday-first for a work queue.
+    return [...buckets.slice(1), buckets[0]];
+  }, [tickets]);
+
   const kpis = [
     {
       label: "Ticket đang mở",
@@ -983,16 +1027,7 @@ function Dashboard({
             </div>
             <button>7 ngày gần nhất⌄</button>
           </div>
-          <div className="chart">
-            {[45, 62, 54, 78, 70, 48, 36].map((height, index) => (
-              <span style={{ height: `${height}%` }} key={index} />
-            ))}
-          </div>
-          <div className="days">
-            {["T2", "T3", "T4", "T5", "T6", "T7", "CN"].map((day) => (
-              <span key={day}>{day}</span>
-            ))}
-          </div>
+          <TicketTrendChart data={trend} />
         </article>
         <article className="panel queue">
           <div className="panel-head">
@@ -1661,90 +1696,123 @@ function TicketModal({
   onClose: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
+  const categories = [
+    "Phần cứng",
+    "Tài khoản",
+    "Mạng & Wi-Fi",
+    "Phần mềm",
+    "Yêu cầu khác",
+  ];
+  const priorities = [
+    { value: "high", label: "Cao" },
+    { value: "medium", label: "Trung bình" },
+    { value: "low", label: "Thấp" },
+  ];
+  const assignees = ["Chưa phân công", ...agents.map((agent) => agent.name)];
   return (
-    <div className="modal-backdrop">
-      <form className="modal" onSubmit={onSubmit}>
-        <header>
-          <div>
-            <p className="eyebrow">YÊU CẦU HỖ TRỢ</p>
-            <h2>Tạo ticket mới</h2>
-          </div>
-          <button type="button" onClick={onClose} aria-label="Đóng">
-            ×
-          </button>
-        </header>
-        <div className="modal-body">
-          <label className="field">
-            <span>Tiêu đề yêu cầu *</span>
-            <input
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-lg">
+        <form onSubmit={onSubmit} className="grid gap-4">
+          <DialogHeader>
+            <p className="text-xs font-medium tracking-wide text-muted-foreground">
+              YÊU CẦU HỖ TRỢ
+            </p>
+            <DialogTitle>Tạo ticket mới</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-2">
+            <Label htmlFor="ticket-title">Tiêu đề yêu cầu *</Label>
+            <Input
+              id="ticket-title"
               name="title"
               required
               placeholder="Ví dụ: Không kết nối được Wi-Fi tầng 3"
             />
-          </label>
-          <label className="field">
-            <span>Mô tả chi tiết</span>
-            <textarea
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="ticket-description">Mô tả chi tiết</Label>
+            <Textarea
+              id="ticket-description"
               name="description"
               placeholder="Mô tả sự cố, thời điểm xảy ra và ảnh hưởng..."
             />
-          </label>
-          <div className="field-grid">
-            <label className="field">
-              <span>Người yêu cầu</span>
-              <input
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label htmlFor="ticket-requester">Người yêu cầu</Label>
+              <Input
+                id="ticket-requester"
                 name="requester"
                 defaultValue={role === "requester" ? "Thu Hà" : "Thanh Vân"}
               />
-            </label>
-            <label className="field">
-              <span>Phòng ban</span>
-              <input
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="ticket-department">Phòng ban</Label>
+              <Input
+                id="ticket-department"
                 name="department"
                 defaultValue={role === "requester" ? "Nhân sự" : "Kế toán"}
               />
-            </label>
+            </div>
           </div>
-          <div className="field-grid">
-            <label className="field">
-              <span>Danh mục</span>
-              <select name="category">
-                <option>Phần cứng</option>
-                <option>Tài khoản</option>
-                <option>Mạng & Wi-Fi</option>
-                <option>Phần mềm</option>
-                <option>Yêu cầu khác</option>
-              </select>
-            </label>
-            <label className="field">
-              <span>Mức độ ưu tiên</span>
-              <select name="priority" defaultValue="medium">
-                <option value="high">Cao</option>
-                <option value="medium">Trung bình</option>
-                <option value="low">Thấp</option>
-              </select>
-            </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label>Danh mục</Label>
+              <Select name="category" defaultValue={categories[0]}>
+                <SelectTrigger className="w-full" aria-label="Danh mục">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label>Mức độ ưu tiên</Label>
+              <Select name="priority" defaultValue="medium" items={priorities}>
+                <SelectTrigger className="w-full" aria-label="Mức độ ưu tiên">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {priorities.map((priority) => (
+                    <SelectItem key={priority.value} value={priority.value}>
+                      {priority.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <label className="field">
-            <span>Giao cho</span>
-            <select
+          <div className="grid gap-2">
+            <Label>Giao cho</Label>
+            <Select
               name="assignee"
+              defaultValue={assignees[0]}
               disabled={role === "requester" || role === "agent"}
             >
-              <option>Chưa phân công</option>
-              {agents.map((agent) => (
-                <option key={agent.id}>{agent.name}</option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <footer>
-          <button type="button" className="secondary" onClick={onClose}>
-            Hủy
-          </button>
-          <button className="primary">Tạo ticket</button>
-        </footer>
-      </form>
-    </div>
+              <SelectTrigger className="w-full" aria-label="Giao cho">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {assignees.map((assignee) => (
+                  <SelectItem key={assignee} value={assignee}>
+                    {assignee}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Hủy
+            </Button>
+            <Button type="submit">Tạo ticket</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

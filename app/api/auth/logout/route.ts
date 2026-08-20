@@ -1,12 +1,3 @@
-import { NextResponse } from "next/server";
-import { destroySession } from "@/lib/auth";
-import { apiError } from "@/lib/http";
+import { logout } from "@/interface-adapters/http/controllers/auth.controller";
 
-export async function POST() {
-  try {
-    await destroySession();
-    return NextResponse.json({ ok: true });
-  } catch (error) {
-    return apiError(error);
-  }
-}
+export const POST = () => logout();

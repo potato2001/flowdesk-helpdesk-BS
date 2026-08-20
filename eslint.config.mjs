@@ -23,6 +23,14 @@ const eslintConfig = defineConfig([
   jsxA11y.flatConfigs.recommended,
   next.configs["core-web-vitals"],
   {
+    // shadcn-generated primitives: Label is a generic wrapper, so the rule
+    // cannot see the control it is associated with at the call site.
+    files: ["components/ui/**"],
+    rules: {
+      "jsx-a11y/label-has-associated-control": "off",
+    },
+  },
+  {
     languageOptions: {
       globals: {
         ...globals.browser,

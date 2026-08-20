@@ -47,3 +47,9 @@ yarn-error.log*
 # local build and agent tooling
 *.tsbuildinfo
 /.agents/
+
+# machine-specific compose port remap
+/docker-compose.override.yml
+
+# Playwright screenshots
+/scratch/
