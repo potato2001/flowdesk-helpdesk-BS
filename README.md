@@ -20,14 +20,13 @@ Container ứng dụng tự áp migration và seed dữ liệu khi khởi độn
 
 ## Tài khoản local mặc định
 
-Mật khẩu chung trong môi trường phát triển: `Flowdesk@123`.
+Mật khẩu: `Flowdesk@123`.
 
 | Vai trò | Email |
 | --- | --- |
-| Admin | admin@flowdesk.local |
-| Manager | manager@flowdesk.local |
-| Agent | agent@flowdesk.local |
-| Requester | requester@flowdesk.local |
+| Admin | admin@bravestars.local |
+
+Đây là tài khoản admin duy nhất được seed sẵn; tạo các tài khoản Manager/Agent/Requester thật từ màn hình "Tài khoản & phân quyền" sau khi đăng nhập.
 
 Hãy đổi `SEED_ADMIN_PASSWORD` và `SESSION_SECRET` trước khi dùng trên mạng nội bộ.
 

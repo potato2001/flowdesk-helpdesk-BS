@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { initialsOf } from "@/domain/user/user";
 
 type Status = "new" | "progress" | "waiting" | "resolved";
 type Priority = "high" | "medium" | "low";
@@ -686,7 +687,6 @@ export default function Home() {
     if (!response.ok) return notify(data.error ?? "Không thể tạo ticket.");
     setTickets((old) => [data.ticket, ...old]);
     setModal(false);
-    event.currentTarget.reset();
     notify(`Đã tạo ticket #${data.ticket.id}`);
     openTicket(data.ticket.id);
   }
@@ -792,7 +792,7 @@ export default function Home() {
   return (
     <AppShell
       groups={navGroups}
-      workspaceName="NovaTech Việt Nam"
+      workspaceName="Bravestars"
       workspaceHint="Internal IT Workspace"
       breadcrumb={
         <>
@@ -841,6 +841,7 @@ export default function Home() {
             <>
               {view === "dashboard" && (
                 <Dashboard
+                  currentName={currentName}
                   openCount={openCount}
                   resolvedCount={resolvedCount}
                   tickets={visibleTickets}
@@ -872,6 +873,7 @@ export default function Home() {
               )}
               {view === "portal" && (
                 <Portal
+                  currentName={currentName}
                   onCreate={() => setModal(true)}
                   onOpen={() => openTicket("HD-1031")}
                 />
@@ -934,7 +936,18 @@ function PageHeading({
   );
 }
 
+const WEEKDAYS_VI = [
+  "Chủ Nhật",
+  "Thứ Hai",
+  "Thứ Ba",
+  "Thứ Tư",
+  "Thứ Năm",
+  "Thứ Sáu",
+  "Thứ Bảy",
+];
+
 function Dashboard({
+  currentName,
   openCount,
   resolvedCount,
   tickets,
@@ -942,6 +955,7 @@ function Dashboard({
   onOpen,
   onViewTickets,
 }: {
+  currentName: string;
   openCount: number;
   resolvedCount: number;
   tickets: Ticket[];
@@ -949,6 +963,31 @@ function Dashboard({
   onOpen: (id: string) => void;
   onViewTickets: () => void;
 }) {
+  const now = new Date();
+  const eyebrow =
+    `${WEEKDAYS_VI[now.getDay()]}, ${now.getDate()} tháng ${now.getMonth() + 1}`.toUpperCase();
+  const hour = now.getHours();
+  const greeting =
+    hour < 12 ? "Chào buổi sáng" : hour < 18 ? "Chào buổi chiều" : "Chào buổi tối";
+
+  // Same breach convention as AdminTickets: an open ticket with 0 minutes left
+  // has already missed its resolution SLA; <=60 minutes is the warning band.
+  const nearBreachCount = tickets.filter(
+    (ticket) =>
+      ticket.status !== "resolved" &&
+      ticket.resolutionSla > 0 &&
+      ticket.resolutionSla <= 60,
+  ).length;
+  const breachedCount = tickets.filter(
+    (ticket) => ticket.status !== "resolved" && ticket.resolutionSla === 0,
+  ).length;
+  const highPriorityOpenCount = tickets.filter(
+    (ticket) => ticket.status !== "resolved" && ticket.priority === "high",
+  ).length;
+  const resolvedRate = tickets.length
+    ? Math.round((resolvedCount / tickets.length) * 100)
+    : 0;
+
   // Derived from the real ticket list: bucket by weekday of creation, so the
   // chart moves with the data instead of showing fixed decorative bars.
   const trend: TrendPoint[] = useMemo(() => {
@@ -969,13 +1008,16 @@ function Dashboard({
     {
       label: "Ticket đang mở",
       value: openCount,
-      note: "+2 so với hôm qua",
+      note:
+        highPriorityOpenCount > 0
+          ? `${highPriorityOpenCount} ưu tiên cao`
+          : "Không có ticket ưu tiên cao",
       tone: "danger",
       icon: "◎",
     },
     {
       label: "Sắp vi phạm SLA",
-      value: 2,
+      value: nearBreachCount,
       note: "Cần xử lý ngay",
       tone: "danger",
       icon: "◷",
@@ -983,23 +1025,23 @@ function Dashboard({
     {
       label: "Đã giải quyết",
       value: resolvedCount,
-      note: "+12% trong tuần",
+      note: `${resolvedRate}% tổng số ticket hiển thị`,
       tone: "good",
       icon: "✓",
     },
     {
-      label: "CSAT trung bình",
-      value: "4.8",
-      note: "96% hài lòng",
-      tone: "good",
-      icon: "☆",
+      label: "Trễ hạn SLA",
+      value: breachedCount,
+      note: "Đã quá hạn giải quyết",
+      tone: breachedCount > 0 ? "danger" : "good",
+      icon: "⚠",
     },
   ];
   return (
     <>
       <PageHeading
-        eyebrow="THỨ TƯ, 20 THÁNG 8"
-        title="Chào buổi sáng, Hoàng Anh"
+        eyebrow={eyebrow}
+        title={`${greeting}, ${currentName}`}
         description="Đây là tình hình vận hành Helpdesk hôm nay."
       >
         <button className="primary" onClick={onCreate}>
@@ -1077,6 +1119,11 @@ function Kanban({
   onOpen: (id: string) => void;
   onCreate: () => void;
 }) {
+  // Collapsed by default on nothing — lets a column be tucked away on a small
+  // screen so the board doesn't turn into one long scroll through every status.
+  const [collapsedColumns, setCollapsedColumns] = useState<
+    Record<string, boolean>
+  >({});
   return (
     <>
       <PageHeading
@@ -1103,11 +1150,25 @@ function Kanban({
               onDragOver={(event) => event.preventDefault()}
               onDrop={() => dragId && moveTicket(dragId, column.key)}
             >
-              <header>
+              <button
+                type="button"
+                className="column-toggle"
+                aria-expanded={!collapsedColumns[column.key]}
+                onClick={() =>
+                  setCollapsedColumns((prev) => ({
+                    ...prev,
+                    [column.key]: !prev[column.key],
+                  }))
+                }
+              >
                 <i className={`dot-${column.dot}`} />
                 <b>{column.label}</b>
-                <span>{list.length}</span>
-              </header>
+                <span className="column-count">{list.length}</span>
+                <span className="column-chevron" aria-hidden>
+                  ⌄
+                </span>
+              </button>
+              {!collapsedColumns[column.key] && (
               <div className="ticket-stack">
                 {list.map((ticket) => (
                   <article
@@ -1161,6 +1222,7 @@ function Kanban({
                   </article>
                 ))}
               </div>
+              )}
             </div>
           );
         })}
@@ -1602,9 +1664,11 @@ function TicketDetail({
 }
 
 function Portal({
+  currentName,
   onCreate,
   onOpen,
 }: {
+  currentName: string;
   onCreate: () => void;
   onOpen: () => void;
 }) {
@@ -1640,14 +1704,14 @@ function Portal({
       <section className="portal">
         <header>
           <div className="portal-brand">
-            <b>N</b> NovaTech Help Center
+            <b>B</b> Bravestars Help Center
           </div>
           <nav>Trang chủ · Yêu cầu của tôi · Kho kiến thức</nav>
-          <Avatar initials="TH" />
+          <Avatar initials={initialsOf(currentName)} />
         </header>
         <div className="portal-hero">
           <span>TRUNG TÂM HỖ TRỢ NỘI BỘ</span>
-          <h2>Xin chào, Thu Hà 👋</h2>
+          <h2>Xin chào, {currentName} 👋</h2>
           <p>Hôm nay chúng tôi có thể giúp gì cho bạn?</p>
           <label>
             ⌕ <input placeholder="Tìm hướng dẫn hoặc mô tả vấn đề..." />

@@ -50,7 +50,7 @@ export default function LoginPage() {
             </div>
           </div>
           <p className="text-xs font-medium tracking-wide text-muted-foreground">
-            NOVATECH VIỆT NAM
+            BRAVESTARS
           </p>
           <CardTitle className="text-xl">Đăng nhập Helpdesk</CardTitle>
           <CardDescription>

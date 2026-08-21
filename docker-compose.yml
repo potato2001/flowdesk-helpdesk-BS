@@ -28,7 +28,7 @@ services:
       SESSION_SECRET: ${SESSION_SECRET:-flowdesk-local-change-me}
       SESSION_COOKIE_SECURE: "false"
       UPLOAD_DIR: /app/data/uploads
-      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@flowdesk.local}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@bravestars.local}
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-Flowdesk@123}
       SMTP_HOST: mailpit
       SMTP_PORT: 1025

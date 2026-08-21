@@ -219,7 +219,11 @@ export function AppShell({
           {actions}
         </header>
 
-        <div className="min-w-0 flex-1 p-4 lg:p-6">{children}</div>
+        <div
+          className="min-w-0 flex-1 p-4 text-[clamp(0.9375rem,0.85vw+0.75rem,1.125rem)] lg:p-6"
+        >
+          {children}
+        </div>
       </section>
     </div>
   );

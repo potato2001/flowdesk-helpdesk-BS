@@ -37,7 +37,7 @@ docker compose up -d --build            # full stack; app auto-runs db:deploy + 
 docker compose up -d postgres mailpit   # services only, then npm run db:setup && npm run dev
 ```
 
-App on :3000, Mailpit UI on :8025, Postgres on :5432. Seeded logins are `{admin,manager,agent,requester}@flowdesk.local` with password `Flowdesk@123`.
+App on :3000, Mailpit UI on :8025, Postgres on :5432. The only seeded login is `admin@bravestars.local` with password `Flowdesk@123` — other users are created from the admin panel, not seeded.
 
 ## Architecture
 

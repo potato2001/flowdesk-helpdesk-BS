@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Flowdesk — Helpdesk nội bộ",
-  description: "Quản lý ticket, SLA và hỗ trợ nội bộ tại NovaTech Việt Nam.",
+  description: "Quản lý ticket, SLA và hỗ trợ nội bộ tại Bravestars.",
 };
 
 export default function RootLayout({

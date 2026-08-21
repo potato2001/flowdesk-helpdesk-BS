@@ -14,7 +14,7 @@ import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 
 const BASE = process.argv[2] ?? "http://localhost:3000";
-const EMAIL = process.env.VERIFY_EMAIL ?? "admin@flowdesk.local";
+const EMAIL = process.env.VERIFY_EMAIL ?? "admin@bravestars.local";
 const PASSWORD = process.env.VERIFY_PASSWORD ?? "Flowdesk@123";
 const OUT = "scratch/ui-verify";
 
