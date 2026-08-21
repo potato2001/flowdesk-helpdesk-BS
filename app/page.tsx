@@ -82,6 +82,42 @@ type Attachment = {
 };
 type AgentOption = { id: string; name: string };
 
+const quickRequestCategories = [
+  {
+    icon: "▣",
+    title: "Thiết bị & phần cứng",
+    text: "Laptop, màn hình, máy in và phụ kiện",
+  },
+  {
+    icon: "♙",
+    title: "Tài khoản & truy cập",
+    text: "Mật khẩu, phân quyền, email công ty",
+  },
+  {
+    icon: "⌁",
+    title: "Mạng & kết nối",
+    text: "Wi-Fi, VPN và kết nối nội bộ",
+  },
+  {
+    icon: "◇",
+    title: "Phần mềm & ứng dụng",
+    text: "Cài đặt, cập nhật và lỗi ứng dụng",
+  },
+];
+const ticketCategories = [
+  ...quickRequestCategories.map((category) => category.title),
+  "Yêu cầu khác",
+];
+const departmentOptions = [
+  "Bigbang",
+  "VORTEX",
+  "EXP",
+  "Marketing",
+  "QA/QC",
+  "Platform",
+  "HR & Admin",
+];
+
 const seedTickets: Ticket[] = [
   {
     id: "HD-1038",
@@ -350,6 +386,7 @@ export default function Home() {
   const [bootstrapError, setBootstrapError] = useState("");
   const [mobileNav, setMobileNav] = useState(false);
   const [modal, setModal] = useState(false);
+  const [modalCategory, setModalCategory] = useState<string | null>(null);
   const [passwordModal, setPasswordModal] = useState(false);
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [tickets, setTickets] = useState(seedTickets);
@@ -546,6 +583,10 @@ export default function Home() {
   function openTicket(id: string) {
     void loadTicketDetails(id, { select: true, scroll: true });
   }
+  function openCreateModal(category?: string) {
+    setModalCategory(category ?? null);
+    setModal(true);
+  }
   function logActivity(id: string, text: string) {
     setActivities((old) => ({
       ...old,
@@ -730,7 +771,9 @@ export default function Home() {
           ["tickets", "≡", "Tất cả ticket"],
           ["portal", "⌂", "Cổng nhân viên"],
         ] as [View, string, string][]
-      ).map(([key, icon, label]) => ({
+      )
+        .filter(([key]) => key !== "kanban" || role !== "requester")
+        .map(([key, icon, label]) => ({
         key,
         icon,
         label,
@@ -845,19 +888,19 @@ export default function Home() {
                   openCount={openCount}
                   resolvedCount={resolvedCount}
                   tickets={visibleTickets}
-                  onCreate={() => setModal(true)}
+                  onCreate={() => openCreateModal()}
                   onOpen={openTicket}
                   onViewTickets={() => navigate("tickets")}
                 />
               )}
-              {view === "kanban" && (
+              {view === "kanban" && role !== "requester" && (
                 <Kanban
                   tickets={visibleTickets}
                   dragId={dragId}
                   setDragId={setDragId}
                   moveTicket={moveTicket}
                   onOpen={openTicket}
-                  onCreate={() => setModal(true)}
+                  onCreate={() => openCreateModal()}
                 />
               )}
               {view === "tickets" && (
@@ -868,13 +911,13 @@ export default function Home() {
                   filter={statusFilter}
                   setFilter={setStatusFilter}
                   onOpen={openTicket}
-                  onCreate={() => setModal(true)}
+                  onCreate={() => openCreateModal()}
                 />
               )}
               {view === "portal" && (
                 <Portal
                   currentName={currentName}
-                  onCreate={() => setModal(true)}
+                  onCreate={openCreateModal}
                   onOpen={() => openTicket("HD-1031")}
                 />
               )}
@@ -894,6 +937,8 @@ export default function Home() {
         <TicketModal
           role={role}
           agents={agents}
+          currentName={currentName}
+          initialCategory={modalCategory}
           onClose={() => setModal(false)}
           onSubmit={createTicket}
         />
@@ -1669,31 +1714,10 @@ function Portal({
   onOpen,
 }: {
   currentName: string;
-  onCreate: () => void;
+  onCreate: (category?: string) => void;
   onOpen: () => void;
 }) {
-  const categories = [
-    {
-      icon: "▣",
-      title: "Thiết bị & phần cứng",
-      text: "Laptop, màn hình, máy in và phụ kiện",
-    },
-    {
-      icon: "♙",
-      title: "Tài khoản & truy cập",
-      text: "Mật khẩu, phân quyền, email công ty",
-    },
-    {
-      icon: "⌁",
-      title: "Mạng & kết nối",
-      text: "Wi-Fi, VPN và kết nối nội bộ",
-    },
-    {
-      icon: "◇",
-      title: "Phần mềm & ứng dụng",
-      text: "Cài đặt, cập nhật và lỗi ứng dụng",
-    },
-  ];
+  const categories = quickRequestCategories;
   return (
     <>
       <PageHeading
@@ -1722,7 +1746,10 @@ function Portal({
           <h3>Gửi yêu cầu nhanh</h3>
           <div className="category-grid">
             {categories.map((category) => (
-              <button onClick={onCreate} key={category.title}>
+              <button
+                onClick={() => onCreate(category.title)}
+                key={category.title}
+              >
                 <i>{category.icon}</i>
                 <b>{category.title}</b>
                 <span>{category.text}</span>
@@ -1752,21 +1779,23 @@ function Portal({
 function TicketModal({
   role,
   agents,
+  currentName,
+  initialCategory,
   onClose,
   onSubmit,
 }: {
   role: Role;
   agents: AgentOption[];
+  currentName: string;
+  initialCategory?: string | null;
   onClose: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
-  const categories = [
-    "Phần cứng",
-    "Tài khoản",
-    "Mạng & Wi-Fi",
-    "Phần mềm",
-    "Yêu cầu khác",
-  ];
+  const categories = ticketCategories;
+  const selectedCategory =
+    initialCategory && categories.includes(initialCategory)
+      ? initialCategory
+      : categories[0];
   const priorities = [
     { value: "high", label: "Cao" },
     { value: "medium", label: "Trung bình" },
@@ -1806,22 +1835,38 @@ function TicketModal({
               <Input
                 id="ticket-requester"
                 name="requester"
-                defaultValue={role === "requester" ? "Thu Hà" : "Thanh Vân"}
+                defaultValue={currentName}
+                readOnly
               />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="ticket-department">Phòng ban</Label>
-              <Input
-                id="ticket-department"
-                name="department"
-                defaultValue={role === "requester" ? "Nhân sự" : "Kế toán"}
-              />
+              <Select name="department" defaultValue={departmentOptions[0]}>
+                <SelectTrigger
+                  id="ticket-department"
+                  className="w-full"
+                  aria-label="Phòng ban"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {departmentOptions.map((department) => (
+                    <SelectItem key={department} value={department}>
+                      {department}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label>Danh mục</Label>
-              <Select name="category" defaultValue={categories[0]}>
+              <Select
+                key={selectedCategory}
+                name="category"
+                defaultValue={selectedCategory}
+              >
                 <SelectTrigger className="w-full" aria-label="Danh mục">
                   <SelectValue />
                 </SelectTrigger>
