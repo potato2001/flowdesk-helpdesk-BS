@@ -95,8 +95,8 @@ button {
 .secondary {
   border: 1px solid var(--line);
   border-radius: 9px;
-  background: #fff;
-  color: #596579;
+  background: var(--panel);
+  color: var(--flowdesk-muted);
   padding: 9px 12px;
   font-weight: 600;
 }
@@ -131,7 +131,7 @@ button {
 }
 .eyebrow {
   margin: 0;
-  color: #8b95a7;
+  color: var(--flowdesk-muted);
   font-size: 0.643em;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -147,7 +147,7 @@ button {
   margin-bottom: 17px;
 }
 .kpi {
-  background: white;
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 17px;
@@ -162,7 +162,7 @@ button {
 .kpi > div > b {
   width: 29px;
   height: 29px;
-  background: #f0efff;
+  background: color-mix(in srgb, var(--brand) 15%, transparent);
   color: var(--brand);
   border-radius: 8px;
   display: grid;
@@ -175,7 +175,7 @@ button {
   margin: 9px 0 4px;
 }
 .kpi small {
-  font-size: 0.714em;
+  font-size: 0.643em;
   color: var(--flowdesk-muted);
 }
 .kpi small.good {
@@ -190,7 +190,7 @@ button {
   gap: 17px;
 }
 .panel {
-  background: white;
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 14px;
   overflow: hidden;
@@ -208,7 +208,7 @@ button {
 }
 .panel-head button {
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--panel);
   color: var(--flowdesk-muted);
   border-radius: 8px;
   padding: 7px 9px;
@@ -243,20 +243,20 @@ button {
 .queue-row {
   border: 0;
   width: 100%;
-  background: #fff;
+  background: var(--panel);
   display: grid;
   grid-template-columns: 7px 1fr auto;
   align-items: center;
   gap: 10px;
   padding: 15px 18px;
-  border-bottom: 1px solid #f0f1f3;
+  border-bottom: 1px solid var(--line);
   text-align: left;
 }
 .queue-row:last-child {
   border-bottom: 0;
 }
 .queue-row:hover {
-  background: #fafaff;
+  background: var(--accent);
 }
 .queue-row > i {
   width: 7px;
@@ -272,12 +272,12 @@ button {
 }
 .queue-row b {
   display: block;
-  font-size: 0.786em;
+  font-size: 0.857em;
   line-height: 1.35;
 }
 .queue-row small {
   display: block;
-  color: #9099a8;
+  color: var(--flowdesk-muted);
   font-size: 0.643em;
   margin-top: 4px;
 }
@@ -289,7 +289,7 @@ button {
 }
 .sla.danger {
   color: var(--danger);
-  background: #fff2f0;
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
   padding: 4px 6px;
   border-radius: 5px;
 }
@@ -313,15 +313,15 @@ button {
   margin-right: 6px;
 }
 .priority-high {
-  background: #fff0ee;
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
   color: var(--danger);
 }
 .priority-medium {
-  background: #fff7e6;
+  background: color-mix(in srgb, var(--warning) 15%, transparent);
   color: var(--warning);
 }
 .priority-low {
-  background: #eef4ff;
+  background: color-mix(in srgb, #175cd3 15%, transparent);
   color: #175cd3;
 }
 .board-toolbar {
@@ -332,8 +332,8 @@ button {
 }
 .board-toolbar button {
   border: 1px solid var(--line);
-  background: white;
-  color: #5c687b;
+  background: var(--panel);
+  color: var(--flowdesk-muted);
   border-radius: 8px;
   padding: 8px 11px;
   font-size: 0.786em;
@@ -347,7 +347,7 @@ button {
   padding-bottom: 15px;
 }
 .column {
-  background: #eef0f3;
+  background: var(--muted);
   border-radius: 12px;
   padding: 10px;
   min-height: 540px;
@@ -382,14 +382,14 @@ button {
 }
 .column-toggle .column-count {
   margin-left: auto;
-  color: #7d8796;
-  background: #fff;
+  color: var(--flowdesk-muted);
+  background: var(--panel);
   padding: 2px 6px;
   border-radius: 5px;
   font-size: 0.643em;
 }
 .column-toggle .column-chevron {
-  color: #8a94a6;
+  color: var(--flowdesk-muted);
   font-size: 0.786em;
   transition: transform 0.15s;
 }
@@ -401,8 +401,8 @@ button {
   gap: 8px;
 }
 .ticket-card {
-  background: #fff;
-  border: 1px solid #e1e4e8;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 10px;
   padding: 12px;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
@@ -414,13 +414,13 @@ button {
 .ticket-code {
   display: flex;
   justify-content: space-between;
-  color: #8a94a6;
+  color: var(--flowdesk-muted);
   font-size: 0.643em;
 }
 .ticket-code button {
   border: 0;
   background: transparent;
-  color: #9aa3b2;
+  color: var(--flowdesk-muted);
 }
 .ticket-card h3 {
   font-size: 0.857em;
@@ -434,14 +434,14 @@ button {
   align-items: center;
 }
 .tag-row > span:not(.priority) {
-  font-size: 0.571em;
-  background: #f2f4f7;
-  color: #566173;
+  font-size: 0.643em;
+  background: var(--secondary);
+  color: var(--secondary-foreground);
   border-radius: 5px;
   padding: 4px 6px;
 }
 .ticket-card > footer {
-  border-top: 1px solid #f0f1f3;
+  border-top: 1px solid var(--line);
   margin-top: 11px;
   padding-top: 10px;
   display: flex;
@@ -461,7 +461,7 @@ button {
   display: none;
 }
 .table-panel {
-  background: #fff;
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 14px;
   overflow: hidden;
@@ -485,10 +485,10 @@ button {
 }
 .table-toolbar select {
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--panel);
   border-radius: 8px;
   padding: 8px 10px;
-  color: #596579;
+  color: var(--flowdesk-muted);
 }
 .desktop-table {
   overflow-x: auto;
@@ -500,8 +500,8 @@ table {
 }
 th {
   text-align: left;
-  color: #8a94a6;
-  background: #fafbfc;
+  color: var(--flowdesk-muted);
+  background: var(--muted);
   font-size: 0.643em;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -511,14 +511,14 @@ th {
 td {
   font-size: 0.786em;
   padding: 13px 14px;
-  border-bottom: 1px solid #eef0f2;
+  border-bottom: 1px solid var(--line);
 }
 tr:hover td {
-  background: #fafaff;
+  background: var(--accent);
 }
 td small {
   display: block;
-  color: #98a2b3;
+  color: var(--flowdesk-muted);
   margin-top: 3px;
 }
 .title-cell {
@@ -530,8 +530,8 @@ td small {
   align-items: center;
   gap: 5px;
   border-radius: 20px;
-  background: #f2f4f7;
-  color: #596579;
+  background: var(--secondary);
+  color: var(--secondary-foreground);
   padding: 5px 8px;
   font-size: 0.643em;
   white-space: nowrap;
@@ -544,22 +544,22 @@ td small {
   background: #98a2b3;
 }
 .status-progress {
-  background: #eef4ff;
+  background: color-mix(in srgb, #175cd3 15%, transparent);
   color: #175cd3;
 }
 .status-progress:before {
   background: #3b82f6;
 }
 .status-waiting {
-  background: #fff7e6;
-  color: #b96100;
+  background: color-mix(in srgb, var(--warning) 15%, transparent);
+  color: var(--warning);
 }
 .status-waiting:before {
   background: #f59e0b;
 }
 .status-resolved {
-  background: #eaf8f2;
-  color: #14835b;
+  background: color-mix(in srgb, var(--safe) 15%, transparent);
+  color: var(--safe);
 }
 .status-resolved:before {
   background: #16a34a;
@@ -575,12 +575,12 @@ td small {
 .portal {
   border: 1px solid var(--line);
   border-radius: 17px;
-  background: #f2f4f7;
+  background: var(--muted);
   overflow: hidden;
 }
 .portal > header {
   height: 58px;
-  background: #fff;
+  background: var(--panel);
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
@@ -597,7 +597,7 @@ td small {
   width: 27px;
   height: 27px;
   border-radius: 8px;
-  background: #e8fff1;
+  background: color-mix(in srgb, #168657 15%, transparent);
   color: #168657;
   display: grid;
   place-items: center;
@@ -668,7 +668,7 @@ td small {
 .category-grid button {
   border: 1px solid var(--line);
   border-radius: 11px;
-  background: #fff;
+  background: var(--panel);
   text-align: left;
   padding: 16px;
 }
@@ -681,7 +681,7 @@ td small {
   width: 33px;
   height: 33px;
   border-radius: 9px;
-  background: #f0efff;
+  background: color-mix(in srgb, var(--brand) 15%, transparent);
   color: var(--brand);
   place-items: center;
   font-style: normal;
@@ -702,7 +702,7 @@ td small {
 }
 .recent {
   margin-top: 25px;
-  background: #fff;
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 15px;
@@ -711,7 +711,7 @@ td small {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #eef0f2;
+  border-bottom: 1px solid var(--line);
 }
 .recent > header button {
   border: 0;
@@ -725,7 +725,7 @@ td small {
   gap: 10px;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid #eef0f2;
+  border-bottom: 1px solid var(--line);
 }
 .recent > div:last-child {
   border: 0;
@@ -736,7 +736,7 @@ td small {
 }
 .recent p small {
   display: block;
-  font-size: 0.8em;
+  font-size: 0.643em;
   color: var(--flowdesk-muted);
   margin-top: 4px;
 }
@@ -931,13 +931,13 @@ td small {
     color: var(--flowdesk-muted);
     margin-top: 11px;
     padding-top: 9px;
-    border-top: 1px solid #f0f1f3;
+    border-top: 1px solid var(--line);
   }
   .mobile-status select {
     border: 1px solid var(--line);
     border-radius: 7px;
     padding: 5px;
-    background: white;
+    background: var(--panel);
   }
   .table-toolbar {
     flex-wrap: wrap;
@@ -966,7 +966,7 @@ td small {
   }
   .mobile-ticket-list article > header > b {
     font-size: 0.714em;
-    color: #7c8798;
+    color: var(--flowdesk-muted);
   }
   .mobile-ticket-list h3 {
     font-size: 0.857em;
@@ -1087,7 +1087,7 @@ select:disabled {
   color: inherit;
 }
 .card-open > footer {
-  border-top: 1px solid #f0f1f3;
+  border-top: 1px solid var(--line);
   margin-top: 11px;
   padding-top: 10px;
   display: flex;
@@ -1108,13 +1108,13 @@ tbody tr {
 }
 .mobile-ticket-list > button {
   border: 0;
-  background: #fff;
+  background: var(--panel);
   padding: 0;
   text-align: left;
   color: inherit;
 }
 .mobile-ticket-list > button:hover {
-  background: #fafaff;
+  background: var(--accent);
 }
 .recent-ticket {
   width: 100%;
@@ -1124,8 +1124,8 @@ tbody tr {
   align-items: center;
   padding: 12px 0;
   border: 0;
-  border-bottom: 1px solid #eef0f2;
-  background: #fff;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
   text-align: left;
 }
 .recent-ticket p {
@@ -1134,7 +1134,7 @@ tbody tr {
 }
 .recent-ticket p small {
   display: block;
-  font-size: 0.8em;
+  font-size: 0.643em;
   color: var(--flowdesk-muted);
   margin-top: 4px;
 }
@@ -1168,11 +1168,11 @@ tbody tr {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #7b8494;
+  color: var(--flowdesk-muted);
   font-size: 0.714em;
 }
 .permission-chip {
-  background: #eeedff;
+  background: color-mix(in srgb, #544fc3 15%, transparent);
   color: #544fc3;
   border-radius: 20px;
   padding: 5px 8px;
@@ -1187,8 +1187,8 @@ tbody tr {
 .properties select {
   border: 1px solid var(--line);
   border-radius: 9px;
-  background: #fff;
-  color: #4f5b6d;
+  background: var(--panel);
+  color: var(--flowdesk-muted);
   padding: 9px 11px;
 }
 .sla-strip {
@@ -1201,7 +1201,7 @@ tbody tr {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fff;
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 14px 16px;
@@ -1230,7 +1230,7 @@ tbody tr {
   gap: 16px;
 }
 .detail-panel {
-  background: #fff;
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 13px;
   padding: 18px;
@@ -1239,7 +1239,7 @@ tbody tr {
 .description-card > p:nth-child(2) {
   font-size: 0.857em;
   line-height: 1.75;
-  color: #3d4859;
+  color: var(--ink);
   margin: 13px 0 17px;
 }
 .detail-tags {
@@ -1249,8 +1249,8 @@ tbody tr {
 }
 .detail-tags > span {
   font-size: 0.643em;
-  background: #f2f4f7;
-  color: #596579;
+  background: var(--secondary);
+  color: var(--secondary-foreground);
   border-radius: 6px;
   padding: 5px 8px;
 }
@@ -1265,10 +1265,10 @@ tbody tr {
 }
 .section-title > span {
   font-size: 0.643em;
-  background: #f2f4f7;
+  background: var(--secondary);
   border-radius: 10px;
   padding: 3px 7px;
-  color: #697386;
+  color: var(--secondary-foreground);
 }
 .comment-list {
   display: grid;
@@ -1283,8 +1283,8 @@ tbody tr {
   border-radius: 9px;
 }
 .comment-list article.internal {
-  background: #fff8e8;
-  border: 1px solid #f6e1aa;
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warning) 35%, transparent);
 }
 .comment-list header {
   display: flex;
@@ -1296,20 +1296,20 @@ tbody tr {
 }
 .comment-list header span {
   font-size: 0.643em;
-  color: #98a2b3;
+  color: var(--flowdesk-muted);
 }
 .comment-list header em {
   font-size: 0.571em;
   font-style: normal;
-  color: #a15c00;
-  background: #ffefc6;
+  color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 20%, transparent);
   border-radius: 10px;
   padding: 3px 6px;
 }
 .comment-list p {
   font-size: 0.786em;
   line-height: 1.6;
-  color: #455164;
+  color: var(--ink);
   margin: 6px 0 0;
 }
 .comment-box {
@@ -1330,13 +1330,13 @@ tbody tr {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fafbfc;
+  background: var(--muted);
   border-top: 1px solid var(--line);
   padding: 8px 10px;
 }
 .comment-box footer label {
   font-size: 0.643em;
-  color: #667085;
+  color: var(--flowdesk-muted);
   display: flex;
   align-items: center;
   gap: 5px;
@@ -1362,13 +1362,13 @@ tbody tr {
   left: 4px;
   top: 10px;
   bottom: 0;
-  border-left: 1px solid #e4e7ec;
+  border-left: 1px solid var(--line);
 }
 .timeline i {
   width: 9px;
   height: 9px;
   border: 2px solid #8b86e8;
-  background: #fff;
+  background: var(--panel);
   border-radius: 50%;
   z-index: 1;
 }
@@ -1378,7 +1378,7 @@ tbody tr {
 }
 .timeline small {
   font-size: 0.643em;
-  color: #98a2b3;
+  color: var(--flowdesk-muted);
 }
 .properties > label {
   display: grid;
@@ -1394,12 +1394,12 @@ tbody tr {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid #eef0f2;
+  border-top: 1px solid var(--line);
   padding: 11px 0;
 }
 .properties dt {
   font-size: 0.643em;
-  color: #8a94a6;
+  color: var(--flowdesk-muted);
 }
 .properties dd {
   margin: 0;
@@ -1408,16 +1408,16 @@ tbody tr {
 }
 .permission-note {
   display: block;
-  background: #f8f7ff;
-  color: #6863c7;
+  background: color-mix(in srgb, var(--brand) 12%, transparent);
+  color: var(--brand);
   border-radius: 7px;
   padding: 9px;
   line-height: 1.45;
 }
 .upload-button {
   font-size: 0.643em;
-  color: #5a55d6;
-  border: 1px solid #d9d7f5;
+  color: var(--brand);
+  border: 1px solid color-mix(in srgb, var(--brand) 30%, transparent);
   border-radius: 7px;
   padding: 6px 8px;
   cursor: pointer;
@@ -1430,14 +1430,14 @@ tbody tr {
   grid-template-columns: 28px 1fr;
   gap: 8px;
   align-items: center;
-  border-top: 1px solid #eef0f2;
+  border-top: 1px solid var(--line);
   padding: 11px 0;
 }
 .attachments > article i {
   width: 28px;
   height: 28px;
-  background: #f0efff;
-  color: #5a55d6;
+  background: color-mix(in srgb, var(--brand) 15%, transparent);
+  color: var(--brand);
   border-radius: 7px;
   display: grid;
   place-items: center;
@@ -1454,13 +1454,13 @@ tbody tr {
   font-size: 0.714em;
 }
 .attachments > article small {
-  font-size: 0.571em;
-  color: #98a2b3;
+  font-size: 0.643em;
+  color: var(--flowdesk-muted);
   margin-top: 3px;
 }
 .empty-inline {
   font-size: 0.714em;
-  color: #98a2b3;
+  color: var(--flowdesk-muted);
   text-align: center;
   padding: 10px;
 }
@@ -1555,7 +1555,12 @@ tbody tr {
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at 20% 10%, #eeedff, transparent 36%), var(--bg);
+    radial-gradient(
+      circle at 20% 10%,
+      color-mix(in srgb, var(--brand) 12%, transparent),
+      transparent 36%
+    ),
+    var(--bg);
   padding: 20px;
 }
 .app-loading {
@@ -1575,7 +1580,7 @@ tbody tr {
   margin: 4px;
 }
 .app-loading code {
-  background: #fff;
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 10px 14px;
@@ -1919,6 +1924,14 @@ tbody tr {
 }
 
 .dark {
+  /* Legacy tokens the pre-shadcn views (dashboard, kanban, ticket
+     list/detail, requester portal) still read directly. They only ever had
+     a :root value, so those screens stayed light-mode-only until now. */
+  --ink: var(--foreground);
+  --flowdesk-muted: var(--muted-foreground);
+  --line: var(--border);
+  --panel: var(--card);
+  --bg: var(--background);
   --background: oklch(0.145 0 0);
   /* Brand stays brand in dark mode; the shadcn default greys it out. */
   --brand: #7b76e8;
